@@ -1,0 +1,35 @@
+name: Run Daily Market Scanner
+
+on:
+  schedule:
+    # This runs it automatically Monday-Friday at 4:00 PM IST (10:30 AM UTC)
+    - cron: '30 10 * * 1-5'
+  workflow_dispatch: # This is what gives you the manual "Run workflow" button!
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas sqlite3 zoneinfo yfinance gspread oauth2client requests
+
+      # 1. Update the database with fresh data first
+      - name: Update Market Data
+        run: python scripts/update_market_data.py
+
+      # 2. Run the scanner and push to Sheets/Telegram
+      - name: Run Scanner
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scanner.py
