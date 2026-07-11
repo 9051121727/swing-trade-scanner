@@ -5,7 +5,7 @@ Values can be overridden via environment variables (useful for GitHub Actions se
 import os
 
 # --- Database ---
-DATABASE = os.environ.get("MARKET_DB_PATH", "data/market.db")
+DATABASE = os.environ.get("MARKET_DB_PATH", "market.db")
 
 # --- Timezone ---
 MARKET_TZ = "Asia/Kolkata"
