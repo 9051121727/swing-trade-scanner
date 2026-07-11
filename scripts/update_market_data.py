@@ -135,6 +135,21 @@ def fetch_and_update(conn, symbols_last: dict, today: date) -> int:
 def main():
     today = datetime.now(MARKET_ZONE).date()
     conn = sqlite3.connect(config.DATABASE)
+    # Ensure the price_history table exists before doing anything else
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS price_history (
+            symbol TEXT,
+            trade_date TEXT,
+            open REAL,
+            high REAL,
+            low REAL,
+            close REAL,
+            volume INTEGER,
+            PRIMARY KEY (symbol, trade_date)
+        )
+    """)
+    conn.commit()
     try:
         symbols_last = get_tracked_symbols_and_last_dates(conn)
         rows_added = fetch_and_update(conn, symbols_last, today)
